@@ -59,6 +59,7 @@ function getValueByUrl(url: OPUrl): string {
 }
 
 export function exportSecretToGHA(name: string, value: string, inputs: Inputs) {
+    info(`Exporting ${name} to GitHub Actions`)
     setOutput(name, value)
     if (inputs.mask) {
         setSecret(value)
