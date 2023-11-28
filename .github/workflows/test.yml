@@ -1,0 +1,74 @@
+name: Test
+
+on:
+    push:
+        branches: [ "main" ]
+    pull_request:
+        branches: [ "main" ]
+
+permissions:
+    contents: read
+
+jobs:
+    unit:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   uses: oven-sh/setup-bun@v1
+                with:
+                    bun-version: latest
+
+            - name: Install packages
+              run: bun install
+
+            - name: Run tests
+              run: bun test
+
+    integration:
+        runs-on: ${{ matrix.os }}
+        if: github.event.repository.full_name == 'shyim/1password-load-secrets-action'
+        strategy:
+            matrix:
+                os: [ ubuntu-latest, macos-latest, windows-latest ]
+        steps:
+            -   name: Setup repo
+                uses: actions/checkout@v4
+
+            -   name: Load secrets
+                uses: ./.
+                with:
+                    # so we can see the secrets in the logs, not recommended for usage!
+                    mask-secrets: false
+                    # export also as environment variable
+                    export: true
+                    secrets: |
+                        # uses NAME_SET as env name
+                        NAME_SET=op://1password-load-secrets-action-test/Login/password
+                        # uses custom_foo as env name
+                        op://1password-load-secrets-action-test/Login/custom_foo
+                        # load all secrets item
+                        op://1password-load-secrets-action-test/Server
+                env:
+                    OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+
+            -   name: Validate CLI
+                run: op --version
+
+
+            -   name: Show all env
+                if: matrix.os != 'windows-latest'
+                run: |
+                    echo "NAME_SET: $NAME_SET"
+                    echo "custom_foo: $custom_foo"
+                    echo "Server_IP: $SERVER_IP"
+                    echo "Server_PORT: $SERVER_PORT"
+
+            -   name: Show all env
+                if: matrix.os == 'windows-latest'
+                run: |
+                    echo "NAME_SET: $env:NAME_SET"
+                    echo "custom_foo: $env:custom_foo"
+                    echo "Server_IP: $env:SERVER_IP"
+                    echo "Server_PORT: $env:SERVER_PORT"

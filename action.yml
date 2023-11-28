@@ -1,0 +1,23 @@
+name: Inject 1Password secrets into GHA
+description: Make secrets from 1Password Connect/Service account available as environment variables in the next steps.
+author: 1Password
+branding:
+  icon: lock
+  color: blue
+inputs:
+  export:
+    description: Export the secrets as environment variables
+    default: "true"
+  secrets:
+    description: The secrets from 1Password
+    required: true
+    default: ""
+  mask-secrets:
+    description: Mask the secrets in the logs
+    default: "true"
+outputs:
+  secrets:
+    description: The secrets from 1Password
+runs:
+  using: "node20"
+  main: "dist/index.js"
