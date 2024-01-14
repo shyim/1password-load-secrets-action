@@ -1,19 +1,23 @@
-import * as os from "os";
-import {downloadTool, extractZip} from "@actions/tool-cache";
-import {addPath, debug, info} from "@actions/core";
-import {validateCli} from "@1password/op-js";
+import * as os from 'os';
+import { downloadTool, extractZip } from '@actions/tool-cache';
+import { addPath, debug, info } from '@actions/core';
+import { validateCli } from '@1password/op-js';
 
 export async function installOPCli(): Promise<string> {
     try {
         await validateCli();
-        info("op-cli already installed, skipping download");
-        return "op"
+        info('op-cli already installed, skipping download');
+        return 'op';
     } catch (e) {
-        debug("op-cli not found, installing");
+        debug('op-cli not found, installing');
     }
 
-    const appUpdateResponse = await fetch('https://app-updates.agilebits.com/check/1/0/CLI2/en/2.0.0/N');
-    const appUpdateJson = await appUpdateResponse.json() as { version: string};
+    const appUpdateResponse = await fetch(
+        'https://app-updates.agilebits.com/check/1/0/CLI2/en/2.0.0/N',
+    );
+    const appUpdateJson = (await appUpdateResponse.json()) as {
+        version: string;
+    };
 
     const downloadLink = getDownloadLink(appUpdateJson.version);
 
@@ -46,11 +50,11 @@ function getDownloadLink(version: string) {
     }
 
     if (!['windows', 'darwin', 'linux'].includes(platform)) {
-        throw new Error(`Unsupported platform: ${platform}`)
+        throw new Error(`Unsupported platform: ${platform}`);
     }
 
     if (!['amd64', 'arm64'].includes(arch)) {
-        throw new Error(`Unsupported architecture: ${arch}`)
+        throw new Error(`Unsupported architecture: ${arch}`);
     }
 
     return `https://cache.agilebits.com/dist/1P/op2/pkg/v${version}/op_${platform}_${arch}_v${version}.zip`;
