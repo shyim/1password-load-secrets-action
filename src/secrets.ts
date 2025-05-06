@@ -1,5 +1,5 @@
 import { OPUrl, parseOPUrl } from './url.js';
-import { item } from '@1password/op-js';
+import { Field, item, Item } from '@1password/op-js';
 import { exportVariable, info, setOutput, setSecret } from '@actions/core';
 import type { Inputs } from './main.js';
 
@@ -18,7 +18,7 @@ export function exportSecrets(inputs: Inputs) {
             if (parsed.field === '') {
                 const vaultItem = item.get(parsed.item, {
                     vault: parsed.vault,
-                });
+                }) as Item;
 
                 if (vaultItem.fields !== undefined) {
                     for (const field of vaultItem.fields) {
